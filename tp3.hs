@@ -1,6 +1,6 @@
 
 import Graphics.Gloss
-  
+
 --Q1
 type Symbole  = Char
 type Mot      = [Symbole]
@@ -153,13 +153,13 @@ type EtatDessin = (EtatTortue, Path)
 interpreteSymbole :: Config -> EtatDessin -> Symbole -> EtatDessin
 interpreteSymbole cfg (s, p) 'F' =
   let s2 = avance cfg s in
-  (s2, (fst s2):p)    
+  (s2, p++[(fst s2)])    
 interpreteSymbole cfg (s, p) '+' =
   let s2 = tourneAGauche cfg s in
-  (s2, (fst s2):p)
+  (s2, p++[(fst s2)])
 interpreteSymbole cfg (s, p) '-' =
   let s2 = tourneADroite cfg s in
-  (s2, (fst s2):p)
+  (s2, p++[(fst s2)])
 interpreteSymbole _ _ _ = error "symbole non accepté"
 
 --Q9
@@ -167,13 +167,27 @@ interpreteSymbole _ _ _ = error "symbole non accepté"
 interpreteMot :: Config -> Mot -> Picture
 interpreteMot cfg mot =
   let i = etatInitial cfg in
- line (interpreteMot_rec cfg (i,[fst i]) (filtreSymbolesTortue cfg mot))
+ Line (interpreteMot_rec cfg (i,[fst i]) (filtreSymbolesTortue cfg mot))
   where
     interpreteMot_rec _ _ [] = []
-    interpreteMot_rec cfg d (x:xs) =
-      if //TODOOOO
+    interpreteMot_rec cfg (s,p) (x:xs) =
+        let r = interpreteSymbole cfg (s,p) x in
+        snd r ++ interpreteMot_rec cfg r xs
 
 
-dessin = interpreteMot (((-150,0),0),100,1,pi/3,"F+-") "F+F--F"
+--dessin = interpreteMot (((-150,0),0),100,1,pi/3,"F+-") "F+F--F+F"
+--main = display (InWindow "L-système" (1000, 1000) (0, 0)) white dessin
 
-main = display (InWindow "L-système" (1000, 1000) (0, 0)) white dessin
+--Q10
+
+vonKoch1 :: LSysteme
+vonKoch1 = lsysteme "F" regles
+    where regles 'F' = "F-F++F-F"
+          regles  s  = [s]
+
+
+lsystemeAnime :: LSysteme -> Config -> Float -> Picture
+lsystemeAnime ls cfg i = Line (ls !! i)
+  
+  dessin t = Line (lsystemeAnime vonKoch1 (((-150,0),0),100,1,pi/3,"F+-") (round t `mod 10)
+main = animate (InWindow "lsysteme" (500, 500) (0, 0)) white dessin
