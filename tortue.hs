@@ -151,19 +151,19 @@ type EtatDessin = ([EtatTortue], [Path])
 --Q8
 
 interpreteSymbole :: Config -> EtatDessin -> Symbole -> EtatDessin
-interpreteSymbole cfg ((s:xs), p) 'F' =
+interpreteSymbole cfg ((s:xs), (p:ps)) 'F' =
   let s2 = avance cfg s in
-  ((s2:xs), p++[(fst s2)])    
-interpreteSymbole cfg ((s:xs), p) '+' =
+  ((s2:xs), (p++[fst s2]) : ps)    
+interpreteSymbole cfg ((s:xs), (p:ps)) '+' =
   let s2 = tourneAGauche cfg s in
-  ((s2:xs), p++[(fst s2)])
-interpreteSymbole cfg ((s:xs), p) '-' =
+  ((s2:xs), (p++[fst s2]) : ps)
+interpreteSymbole cfg ((s:xs), (p:ps)) '-' =
   let s2 = tourneADroite cfg s in
-  ((s2:xs), p++[(fst s2)])
-interpreteSymbole cfg ((s:xs),p) '[' =
-  ((s:s:xs),p)
-interpreteSymbole cfg ((s:xs),p) ']' =
-  (xs,p)
+  ((s2:xs), (p++[fst s2]) : ps)
+interpreteSymbole cfg ((s:xs),ps) '[' =
+  ((s:s:xs),[fst s]:ps)
+interpreteSymbole cfg ((s:s2:xs),ps) ']' =
+  (s2:xs, [fst s2]:ps)
 
 interpreteSymbole _ _ _ = error "symbole non accepté"
 
