@@ -1,3 +1,10 @@
+{-
+TP3 Programmation Fonctionnelle
+Fichier contenant les algorithmes pour la tortue
+
+Matthieu Caron
+Arnaud Cojez
+-}
 
 import Graphics.Gloss
 
@@ -146,25 +153,20 @@ Tests
 -}
     
     
-type EtatDessin = ([EtatTortue], [Path])
+type EtatDessin = (EtatTortue, Path)
 
 --Q8
 
 interpreteSymbole :: Config -> EtatDessin -> Symbole -> EtatDessin
-interpreteSymbole cfg ((s:xs), (p:ps)) 'F' =
+interpreteSymbole cfg (s, p) 'F' =
   let s2 = avance cfg s in
-  ((s2:xs), (p++[fst s2]) : ps)    
-interpreteSymbole cfg ((s:xs), (p:ps)) '+' =
+  (s2, p++[(fst s2)])    
+interpreteSymbole cfg (s, p) '+' =
   let s2 = tourneAGauche cfg s in
-  ((s2:xs), (p++[fst s2]) : ps)
-interpreteSymbole cfg ((s:xs), (p:ps)) '-' =
+  (s2, p++[(fst s2)])
+interpreteSymbole cfg (s, p) '-' =
   let s2 = tourneADroite cfg s in
-  ((s2:xs), (p++[fst s2]) : ps)
-interpreteSymbole cfg ((s:xs),ps) '[' =
-  ((s:s:xs),[fst s]:ps)
-interpreteSymbole cfg ((s:s2:xs),ps) ']' =
-  (s2:xs, [fst s2]:ps)
-
+  (s2, p++[(fst s2)])
 interpreteSymbole _ _ _ = error "symbole non accepté"
 
 --Q9
@@ -172,7 +174,7 @@ interpreteSymbole _ _ _ = error "symbole non accepté"
 interpreteMot :: Config -> Mot -> Picture
 interpreteMot cfg mot =
   let i = etatInitial cfg in
-  pictures (map line (interpreteMot_rec cfg ([i],[[fst i]]) (filtreSymbolesTortue cfg mot)))
+  Line (interpreteMot_rec cfg (i,[fst i]) (filtreSymbolesTortue cfg mot))
   where
     interpreteMot_rec _ (s,p) [] = p
     interpreteMot_rec cfg (s,p) (x:xs) =
@@ -185,6 +187,13 @@ interpreteMot cfg mot =
 
 --Q10
 
+lsystemeAnime :: LSysteme -> Config -> Float -> Picture
+lsystemeAnime lSys (st, pas, ech, ang, symbs) instant =
+  let i = round instant `mod` 6 in
+  interpreteMot (st, pas * (ech / fromIntegral i), ech, ang, symbs) (lSys !! i)
+
+--Main & Tests
+
 vonKoch1 :: LSysteme
 vonKoch1 = lsysteme "F" regles
     where regles 'F' = "F-F++F-F"
@@ -194,34 +203,11 @@ vonKoch2 :: LSysteme
 vonKoch2 = lsysteme "F++F++F++" regles
     where regles 'F' = "F-F++F-F"
           regles  s  = [s]
+          
+vonKoch1Anime :: Float -> Picture
+vonKoch1Anime = lsystemeAnime vonKoch1 (((-50,-150),0),100,1/3,pi/3,"F+-")
 
+vonKoch2Anime :: Float -> Picture
+vonKoch2Anime = lsystemeAnime vonKoch2 (((-50,-150),0),100,1/3,pi/3,"F+-")
 
-lsystemeAnime :: LSysteme -> Config -> Float -> Picture
-lsystemeAnime lSys (st, pas, ech, ang, symbs) instant =
-  let i = round instant `mod` 6 in
-  interpreteMot (st, pas * (ech / fromIntegral i), ech, ang, symbs) (lSys !! i)
-  
-{-
-
-fonctionne
-
-main = animate (InWindow "lSysteme" (1000, 1000) (0, 0)) white (lsystemeAnime vonKoch2 (((-150,0),0),100,1/2,pi/3,"F+-"))
--}
-
-brindille :: LSysteme
-brindille = lsysteme "F" regles
-    where regles 'F' = "F[-F]F[+F]F"
-          regles  s  = [s]
-
-broussaille :: LSysteme
-broussaille = lsysteme "F" regles
-    where regles 'F' = "FF-[-F+F+F]+[+F-F-F]"
-          regles  s  = [s]
-
-brindilleAnime :: Float -> Picture
-brindilleAnime = lsystemeAnime brindille (((0, -400), pi/2), 800, 1/3, 25*pi/180, "F+-[]")
-
-broussailleAnime :: Float -> Picture
-broussailleAnime = lsystemeAnime broussaille (((0, -400), pi/2), 500, 2/5, 25*pi/180, "F+-[]")
-
-main = animate (InWindow "Flying Turtle" (1000, 1000) (0, 0)) white brindilleAnime
+main = animate (InWindow "lSysteme" (1000, 1000) (0, 0)) white vonKoch1Anime
