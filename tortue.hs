@@ -146,20 +146,25 @@ Tests
 -}
     
     
-type EtatDessin = (EtatTortue, [Path])
+type EtatDessin = ([EtatTortue], [Path])
 
 --Q8
 
 interpreteSymbole :: Config -> EtatDessin -> Symbole -> EtatDessin
-interpreteSymbole cfg (s, p) 'F' =
+interpreteSymbole cfg ((s:xs), p) 'F' =
   let s2 = avance cfg s in
-  (s2, p++[(fst s2)])    
-interpreteSymbole cfg (s, p) '+' =
+  ((s2:xs), p++[(fst s2)])    
+interpreteSymbole cfg ((s:xs), p) '+' =
   let s2 = tourneAGauche cfg s in
-  (s2, p++[(fst s2)])
-interpreteSymbole cfg (s, p) '-' =
+  ((s2:xs), p++[(fst s2)])
+interpreteSymbole cfg ((s:xs), p) '-' =
   let s2 = tourneADroite cfg s in
-  (s2, p++[(fst s2)])
+  ((s2:xs), p++[(fst s2)])
+interpreteSymbole cfg ((s:xs),p) '[' =
+  ((s:s:xs),p)
+interpreteSymbole cfg ((s:xs),p) ']' =
+  (xs,p)
+
 interpreteSymbole _ _ _ = error "symbole non accepté"
 
 --Q9
