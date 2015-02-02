@@ -167,16 +167,16 @@ interpreteSymbole _ _ _ = error "symbole non accepté"
 interpreteMot :: Config -> Mot -> Picture
 interpreteMot cfg mot =
   let i = etatInitial cfg in
- Line (interpreteMot_rec cfg (i,[fst i]) (filtreSymbolesTortue cfg mot))
+  Line (interpreteMot_rec cfg (i,[fst i]) (filtreSymbolesTortue cfg mot))
   where
-    interpreteMot_rec _ _ [] = []
+    interpreteMot_rec _ (s,p) [] = p
     interpreteMot_rec cfg (s,p) (x:xs) =
         let r = interpreteSymbole cfg (s,p) x in
-        snd r ++ interpreteMot_rec cfg r xs
+        interpreteMot_rec cfg r xs
 
 
---dessin = interpreteMot (((-150,0),0),100,1,pi/3,"F+-") "F+F--F+F"
---main = display (InWindow "L-système" (1000, 1000) (0, 0)) white dessin
+dessin = interpreteMot (((-150,0),0),100,1,pi/3,"F+-") "F+F--F+F"
+main = display (InWindow "L-système" (1000, 1000) (0, 0)) white dessin
 
 --Q10
 
@@ -186,8 +186,8 @@ vonKoch1 = lsysteme "F" regles
           regles  s  = [s]
 
 
-lsystemeAnime :: LSysteme -> Config -> Float -> Picture
-lsystemeAnime ls cfg i = Line (ls !! i)
+--lsystemeAnime :: LSysteme -> Config -> Float -> Picture
+--lsystemeAnime ls cfg i = Line (ls !! i)
   
-  dessin t = Line (lsystemeAnime vonKoch1 (((-150,0),0),100,1,pi/3,"F+-") (round t `mod 10)
-main = animate (InWindow "lsysteme" (500, 500) (0, 0)) white dessin
+--  dessin t = Line (lsystemeAnime vonKoch1 (((-150,0),0),100,1,pi/3,"F+-") (round t `mod 10)
+--main = animate (InWindow "lsysteme" (500, 500) (0, 0)) white dessin
