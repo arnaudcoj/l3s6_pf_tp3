@@ -194,10 +194,34 @@ vonKoch2 :: LSysteme
 vonKoch2 = lsysteme "F++F++F++" regles
     where regles 'F' = "F-F++F-F"
           regles  s  = [s]
-          
+
+
 lsystemeAnime :: LSysteme -> Config -> Float -> Picture
 lsystemeAnime lSys (st, pas, ech, ang, symbs) instant =
   let i = round instant `mod` 6 in
   interpreteMot (st, pas * (ech / fromIntegral i), ech, ang, symbs) (lSys !! i)
+  
+{-
+
+fonctionne
 
 main = animate (InWindow "lSysteme" (1000, 1000) (0, 0)) white (lsystemeAnime vonKoch2 (((-150,0),0),100,1/2,pi/3,"F+-"))
+-}
+
+brindille :: LSysteme
+brindille = lsysteme "F" regles
+    where regles 'F' = "F[-F]F[+F]F"
+          regles  s  = [s]
+
+broussaille :: LSysteme
+broussaille = lsysteme "F" regles
+    where regles 'F' = "FF-[-F+F+F]+[+F-F-F]"
+          regles  s  = [s]
+
+brindilleAnime :: Float -> Picture
+brindilleAnime = lsystemeAnime brindille (((0, -400), pi/2), 800, 1/3, 25*pi/180, "F+-[]")
+
+broussailleAnime :: Float -> Picture
+broussailleAnime = lsystemeAnime broussaille (((0, -400), pi/2), 500, 2/5, 25*pi/180, "F+-[]")
+
+main = animate (InWindow "Flying Turtle" (1000, 1000) (0, 0)) white brindilleAnime
