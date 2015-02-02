@@ -146,7 +146,7 @@ Tests
 -}
     
     
-type EtatDessin = (EtatTortue, Path)
+type EtatDessin = (EtatTortue, [Path])
 
 --Q8
 
