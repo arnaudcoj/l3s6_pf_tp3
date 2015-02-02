@@ -172,7 +172,7 @@ interpreteSymbole _ _ _ = error "symbole non accepté"
 interpreteMot :: Config -> Mot -> Picture
 interpreteMot cfg mot =
   let i = etatInitial cfg in
-  Line (interpreteMot_rec cfg (i,[fst i]) (filtreSymbolesTortue cfg mot))
+  pictures (map line (interpreteMot_rec cfg ([i],[[fst i]]) (filtreSymbolesTortue cfg mot)))
   where
     interpreteMot_rec _ (s,p) [] = p
     interpreteMot_rec cfg (s,p) (x:xs) =
